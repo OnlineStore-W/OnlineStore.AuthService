@@ -54,7 +54,8 @@ public class RegisterAdminHandler : IRequestHandler<RegisterAdminRequest, Regist
             Email = request.Email,
             SecurityStamp = Guid.NewGuid().ToString(),
             UserName = request.Username,
-        };
+            PasswordExpiration = DateTime.UtcNow.AddYears(10)
+    };
         var result = await _userManager.CreateAsync(user, request.Password);
         if (!result.Succeeded)
         {
