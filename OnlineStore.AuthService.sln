@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{CEA89D87
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineStore.AuthService.Api", "app\OnlineStore.AuthService.Api\OnlineStore.AuthService.Api.csproj", "{991F3247-20E9-4041-B7C8-F8C1555402FD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineStore.AuthService.Core", "app\OnlineStore.AuthService.Core\OnlineStore.AuthService.Core.csproj", "{F2169511-9471-4B87-A6C6-9F671B1FD911}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,12 +26,17 @@ Global
 		{991F3247-20E9-4041-B7C8-F8C1555402FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{991F3247-20E9-4041-B7C8-F8C1555402FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{991F3247-20E9-4041-B7C8-F8C1555402FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2169511-9471-4B87-A6C6-9F671B1FD911}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2169511-9471-4B87-A6C6-9F671B1FD911}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2169511-9471-4B87-A6C6-9F671B1FD911}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2169511-9471-4B87-A6C6-9F671B1FD911}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{991F3247-20E9-4041-B7C8-F8C1555402FD} = {F1366067-8D40-4060-974A-337D7FD5C20D}
+		{F2169511-9471-4B87-A6C6-9F671B1FD911} = {F1366067-8D40-4060-974A-337D7FD5C20D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BAC41C80-D5AD-410C-89CD-F936FF4A250B}
