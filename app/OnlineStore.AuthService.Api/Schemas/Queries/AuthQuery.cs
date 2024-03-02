@@ -1,5 +1,6 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Identity.Data;
+using OnlineStore.AuthService.Core.Handlers.Login;
+using LoginRequest = OnlineStore.AuthService.Core.Handlers.Login.LoginRequest;
 
 namespace OnlineStore.AuthService.Api.Schemas.Queries;
 
@@ -13,8 +14,8 @@ public class AuthQuery
         _mediator = mediator;
     }
 
-    //public async Task<LoginResponse> Login(LoginRequest request, CancellationToken cancellationToken)
-    //{
-    //    return await _mediator.Send(request, cancellationToken);
-    //}
+    public async Task<LoginResponse> Login(LoginRequest request, CancellationToken cancellationToken)
+    {
+        return await _mediator.Send(request, cancellationToken);
+    }
 }
