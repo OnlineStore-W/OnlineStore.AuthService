@@ -12,4 +12,8 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\OnlineStore.AuthService.DataAccess\OnlineStore.AuthService.DataAccess.csproj" />
+  </ItemGroup>
+
 </Project>
