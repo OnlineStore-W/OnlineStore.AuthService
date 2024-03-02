@@ -12,4 +12,8 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\OnlineStore.AuthService.Models\OnlineStore.AuthService.Models.csproj" />
+  </ItemGroup>
+
 </Project>
