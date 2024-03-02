@@ -1,7 +1,10 @@
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using OnlineStore.AuthService.Api.Extentions;
+using OnlineStore.AuthService.Core.Abstractions;
+using OnlineStore.AuthService.Core.Services;
 using OnlineStore.AuthService.DataAccess;
+using System.Net.Mail;
 
 namespace OnlineStore.AuthService.Api;
 
@@ -20,6 +23,8 @@ public class Program
         builder.SetDBConfigs();
         builder.Services.RegisterConsumerServices();
         builder.AddKafkaService();
+
+        builder.Services.AddTransient<IEmailService, EmailService>();
 
         var app = builder.Build();
 

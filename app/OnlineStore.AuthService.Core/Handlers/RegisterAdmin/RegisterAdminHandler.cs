@@ -1,11 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OnlineStore.AuthService.Core.Constants;
 using OnlineStore.AuthService.Models;
-using System.Net.Mail;
-using System.Net;
+using OnlineStore.AuthService.Core.Abstractions;
 
 namespace OnlineStore.AuthService.Core.Handlers.RegisterAdmin;
 
@@ -14,15 +12,15 @@ public class RegisterAdminHandler : IRequestHandler<RegisterAdminRequest, Regist
     private readonly UserManager<AuthUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
 
-    private readonly IConfiguration _configuration;
     private readonly IServiceProvider serviceProvider;
+    private readonly IEmailService _emailService;
 
     public RegisterAdminHandler(
-        IConfiguration configuration,
-        IServiceProvider serviceProvider
+        IServiceProvider serviceProvider,
+        IEmailService emailService
         )
     {
-        _configuration = configuration;
+        _emailService = emailService;
         this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
         var serviceScope = this.serviceProvider.GetRequiredService<IServiceScopeFactory>()
@@ -49,13 +47,14 @@ public class RegisterAdminHandler : IRequestHandler<RegisterAdminRequest, Regist
             throw new Exception("DB is not empty!");
         }
 
-        AuthUser user = new()
+        var user = new AuthUser()
         {
             Email = request.Email,
             SecurityStamp = Guid.NewGuid().ToString(),
             UserName = request.Username,
             PasswordExpiration = DateTime.UtcNow.AddYears(10)
-    };
+        };
+
         var result = await _userManager.CreateAsync(user, request.Password);
         if (!result.Succeeded)
         {
@@ -79,26 +78,7 @@ public class RegisterAdminHandler : IRequestHandler<RegisterAdminRequest, Regist
 
         var confirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-        string to = _configuration["GmailClient:Host"];
-        using (var client = new SmtpClient())
-        {
-            client.Host = _configuration["GmailClient:Host"];
-            client.Port = int.Parse(_configuration["GmailClient:Port"]);
-            client.DeliveryMethod = SmtpDeliveryMethod.Network;
-            client.UseDefaultCredentials = false;
-            client.EnableSsl = true;
-            client.Credentials = new NetworkCredential(_configuration["GmailClient:Email"], _configuration["GmailClient:AppPassword"]);
-            using (var message = new MailMessage(
-                from: new MailAddress(_configuration["GmailClient:Email"], "OnlineStore"),
-                to: new MailAddress(user.Email, user.UserName)
-                ))
-            {
-                message.Subject = $"ConfirmationToken for {user.UserName}";
-                message.Body = $"User this token to confirm your email - `{confirmationToken}`";
-
-                client.Send(message);
-            }
-        }
+        _emailService.SendEmail(user, confirmationToken);
 
         return new RegisterAdminResponse("New user created succesfully.");
     }
