@@ -2,10 +2,7 @@
 using Microsoft.Extensions.Options;
 using Moq;
 using OnlineStore.AuthService.Core.Abstractions;
-using OnlineStore.AuthService.Core.Constants;
 using OnlineStore.AuthService.Core.Handlers.ConfirmEmail;
-using OnlineStore.AuthService.Core.Handlers.Login;
-using OnlineStore.AuthService.Core.Handlers.RegisterAdmin;
 using OnlineStore.AuthService.Core.UnitTests.Helpers;
 using OnlineStore.AuthService.Models;
 using OnlineStore.CommonComponent.EventModels.UserModels;
@@ -18,29 +15,34 @@ public class ConfirmEmailHandlerTests
 {
     private ServiceProviderBuilder serviceProviderBuilder;
     private ConfirmEmailHandler confirmEmailHandler;
+    private Mock<ProduserService> produserServiceMock;
+    private Mock<IProduserServiceWrapper> produserServiceWrapperMock;
 
     public ConfirmEmailHandlerTests()
     {
         serviceProviderBuilder = new ServiceProviderBuilder();
 
-        //var configData = new KafkaConfiguration
-        //{
-        //    Brokers = "test",
-        //    ConsumerGroup = "test",
-        //    Key = "test",
-        //    SchemaRegistryUrl = "",
-        //    Topic = ""
-        //};
+        var configData = new KafkaConfiguration
+        {
+            Brokers = "test",
+            ConsumerGroup = "test",
+            Key = "test",
+            SchemaRegistryUrl = "",
+            Topic = ""
+        };
 
-        //var kafkaConfigMock = new Mock<IOptions<KafkaConfiguration>>();
-        //kafkaConfigMock.Setup(x => x.Value).Returns(configData);
+        var kafkaConfigMock = new Mock<IOptions<KafkaConfiguration>>();
+        kafkaConfigMock.Setup(x => x.Value).Returns(configData);
 
-        //var produser = new ProduserService(kafkaConfigMock.Object);
+        var produser = new ProduserService(kafkaConfigMock.Object);
 
-        //produserServiceMock = new Mock<ProduserService>(kafkaConfigMock.Object);
+        produserServiceMock = new Mock<ProduserService>(kafkaConfigMock.Object);
+        produserServiceWrapperMock = new Mock<IProduserServiceWrapper>();
+        produserServiceWrapperMock
+            .Setup(x => x.ProduceAsync(It.IsAny<EmailConfermedEvent>()))
+            .ReturnsAsync(true);
 
-
-        confirmEmailHandler = new ConfirmEmailHandler(serviceProviderBuilder.BuildServiceProvider());
+        confirmEmailHandler = new ConfirmEmailHandler(serviceProviderBuilder.BuildServiceProvider(), produserServiceWrapperMock.Object);
     }
 
     [Fact]
