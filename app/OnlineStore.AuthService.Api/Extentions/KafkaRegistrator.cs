@@ -1,4 +1,6 @@
-﻿using OnlineStore.CommonComponent.Kafka.Models;
+﻿using OnlineStore.AuthService.Core.Abstractions;
+using OnlineStore.AuthService.Core.Services;
+using OnlineStore.CommonComponent.Kafka.Models;
 using OnlineStore.CommonComponent.Kafka.Services;
 
 namespace OnlineStore.AuthService.Api.Extentions;
@@ -16,5 +18,6 @@ public static class KafkaRegistrator
         builder.Services.Configure<KafkaConfiguration>(kafkaConfig);
 
         builder.Services.AddTransient<ProduserService>();
+        builder.Services.AddTransient<IProduserServiceWrapper, ProduserServiceWrapper>();
     }
 }

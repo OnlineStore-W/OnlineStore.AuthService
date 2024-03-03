@@ -1,6 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using OnlineStore.AuthService.Core.Abstractions;
+using OnlineStore.AuthService.Core.Services;
 using OnlineStore.AuthService.Models;
 using OnlineStore.CommonComponent.EventModels.UserModels;
 using OnlineStore.CommonComponent.Kafka.Services;
@@ -12,8 +14,9 @@ public class ConfirmEmailHandler : IRequestHandler<ConfirmEmailRequest, ConfirmE
     private readonly UserManager<AuthUser> _userManager;
     private readonly IServiceProvider serviceProvider;
     //private readonly ProduserService produserService;
+    private readonly IProduserServiceWrapper produserService;
 
-    public ConfirmEmailHandler(IServiceProvider serviceProvider)
+    public ConfirmEmailHandler(IServiceProvider serviceProvider, IProduserServiceWrapper produserService)
     {
         this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
@@ -21,7 +24,7 @@ public class ConfirmEmailHandler : IRequestHandler<ConfirmEmailRequest, ConfirmE
                         .CreateScope();
         _userManager = serviceScope.ServiceProvider.GetService<UserManager<AuthUser>>();
 
-        //this.produserService = produserService ?? throw new ArgumentNullException();
+        this.produserService = produserService ?? throw new ArgumentNullException();
     }
 
     public async Task<ConfirmEmailResponse> Handle(ConfirmEmailRequest request, CancellationToken cancellationToken)
@@ -31,15 +34,15 @@ public class ConfirmEmailHandler : IRequestHandler<ConfirmEmailRequest, ConfirmE
             throw new Exception("User does not exists!");
         var result = await _userManager.ConfirmEmailAsync(user, request.ConfirmationToken);
 
-        //var emailConfermedEvent = new EmailConfermedEvent()
-        //{
-        //    Email = request.Email,
-        //    UserId = Guid.Parse(user.Id)
-        //};
+        var emailConfermedEvent = new EmailConfermedEvent()
+        {
+            Email = request.Email,
+            UserId = Guid.Parse(user.Id)
+        };
 
         if (result.Succeeded)
         {
-            //await this.produserService.ProduceAsync(emailConfermedEvent);
+            var produserResult = await this.produserService.ProduceAsync(emailConfermedEvent);
         }
 
         return new ConfirmEmailResponse(result.Succeeded);
