@@ -34,7 +34,7 @@ public class RegisterManagerHandlerTests
                 .Setup(x => x.CreateAsync(It.IsAny<AuthUser>(), It.IsAny<string>()))
                 .ReturnsAsync(IdentityResult.Success);
 
-        var request = GetRegisterAdminRequest();
+        var request = GetRegisterManagerRequest();
 
         var result = await registerAdminHandler.Handle(request, CancellationToken.None);
         Assert.NotNull(result);
@@ -50,7 +50,7 @@ public class RegisterManagerHandlerTests
                 .Setup(x => x.FindByNameAsync(It.IsAny<string>()))
                 .ReturnsAsync(new AuthUser());
 
-        var result = await Assert.ThrowsAsync<Exception>(async () => await registerAdminHandler.Handle(GetRegisterAdminRequest(), CancellationToken.None));
+        var result = await Assert.ThrowsAsync<Exception>(async () => await registerAdminHandler.Handle(GetRegisterManagerRequest(), CancellationToken.None));
         Assert.Equal("User already exists!", result.Message);
     }
 
@@ -62,7 +62,7 @@ public class RegisterManagerHandlerTests
                 .Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
                 .ReturnsAsync(new AuthUser());
 
-        var result = await Assert.ThrowsAsync<Exception>(async () => await registerAdminHandler.Handle(GetRegisterAdminRequest(), CancellationToken.None));
+        var result = await Assert.ThrowsAsync<Exception>(async () => await registerAdminHandler.Handle(GetRegisterManagerRequest(), CancellationToken.None));
         Assert.Equal("User with this email is already registered!", result.Message);
     }
 
@@ -79,13 +79,11 @@ public class RegisterManagerHandlerTests
                 .Setup(x => x.GetUsersInRoleAsync(UserRoles.Admin))
                 .ReturnsAsync(new List<AuthUser>());
 
-        var request = GetRegisterAdminRequest();
-
-        var result = await Assert.ThrowsAsync<Exception>(async () => await registerAdminHandler.Handle(GetRegisterAdminRequest(), CancellationToken.None));
+        var result = await Assert.ThrowsAsync<Exception>(async () => await registerAdminHandler.Handle(GetRegisterManagerRequest(), CancellationToken.None));
         Assert.NotNull(result);
     }
 
-    private RegisterManagerRequest GetRegisterAdminRequest()
+    private RegisterManagerRequest GetRegisterManagerRequest()
         => new RegisterManagerRequest()
         {
             Username = "testName",
