@@ -1,11 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OnlineStore.AuthService.Core.Constants;
 using OnlineStore.AuthService.Models;
-using System.Net.Mail;
-using System.Net;
 using OnlineStore.AuthService.Core.Abstractions;
 
 namespace OnlineStore.AuthService.Core.Handlers.RegisterManager;

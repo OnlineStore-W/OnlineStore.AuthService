@@ -2,19 +2,19 @@
 using Moq;
 using OnlineStore.AuthService.Core.Abstractions;
 using OnlineStore.AuthService.Core.Constants;
-using OnlineStore.AuthService.Core.Handlers.RegisterAdmin;
+using OnlineStore.AuthService.Core.Handlers.RegisterManager;
 using OnlineStore.AuthService.Core.UnitTests.Helpers;
 using OnlineStore.AuthService.Models;
 
-namespace OnlineStore.AuthService.Core.UnitTests.RequestHandlers.RegisterAdmin;
+namespace OnlineStore.AuthService.Core.UnitTests.RequestHandlers.RegisterManager;
 
-public class RegisterAdminHandlerTests
+public class RegisterManagerHandlerTests
 {
     private Mock<IEmailService> emailServiceMock;
     private ServiceProviderBuilder serviceProviderBuilder;
-    private RegisterAdminHandler registerAdminHandler;
+    private RegisterManagerHandler registerAdminHandler;
 
-    public RegisterAdminHandlerTests()
+    public RegisterManagerHandlerTests()
     {
         serviceProviderBuilder = new ServiceProviderBuilder();
 
@@ -23,28 +23,23 @@ public class RegisterAdminHandlerTests
             .Setup(x => x.SendEmail(It.IsAny<AuthUser>(), It.IsAny<string>()))
             .Returns(true);
 
-        registerAdminHandler = new RegisterAdminHandler(serviceProviderBuilder.BuildServiceProvider(), emailServiceMock.Object);
+        registerAdminHandler = new RegisterManagerHandler(serviceProviderBuilder.BuildServiceProvider(), emailServiceMock.Object);
     }
 
     [Fact]
-    public async Task Handle_WhenRegisterAdmin_ShouldReturnRegisterAdminResponse()
+    public async Task Handle_WhenRegisterManager_ShouldReturnRegisterManagerResponse()
     {
         serviceProviderBuilder
             .UserManagerMock
                 .Setup(x => x.CreateAsync(It.IsAny<AuthUser>(), It.IsAny<string>()))
                 .ReturnsAsync(IdentityResult.Success);
 
-        serviceProviderBuilder
-            .UserManagerMock
-                .Setup(x => x.GetUsersInRoleAsync(UserRoles.Admin))
-                .ReturnsAsync(new List<AuthUser>());
-
         var request = GetRegisterAdminRequest();
 
         var result = await registerAdminHandler.Handle(request, CancellationToken.None);
         Assert.NotNull(result);
-        Assert.IsType<RegisterAdminResponse>(result);
-        Assert.Equal("New user created succesfully.", result.result);        
+        Assert.IsType<RegisterManagerResponse>(result);
+        Assert.Equal("New manager created succesfully.", result.result);
     }
 
     [Fact]
@@ -60,32 +55,15 @@ public class RegisterAdminHandlerTests
     }
 
     [Fact]
-    public async Task Handle_WhenAdminExist_ShouldThrowException()
+    public async Task Handle_WhenEmailExist_ShouldThrowException()
     {
         serviceProviderBuilder
             .UserManagerMock
-                .Setup(x => x.GetUsersInRoleAsync(UserRoles.Admin))
-                .ReturnsAsync(new List<AuthUser>() { new AuthUser() });
+                .Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
+                .ReturnsAsync(new AuthUser());
 
         var result = await Assert.ThrowsAsync<Exception>(async () => await registerAdminHandler.Handle(GetRegisterAdminRequest(), CancellationToken.None));
-        Assert.Equal("Admin is already registered!", result.Message);
-    }
-
-    [Fact]
-    public async Task Handle_WhenDbNotEmpty_ShouldThrowException()
-    {
-        serviceProviderBuilder
-            .UserManagerMock
-                .Setup(x => x.Users)
-                .Returns(new List<AuthUser>() { new AuthUser() }.AsQueryable);
-
-        serviceProviderBuilder
-            .UserManagerMock
-                .Setup(x => x.GetUsersInRoleAsync(UserRoles.Admin))
-                .ReturnsAsync(new List<AuthUser>() { });
-
-        var result = await Assert.ThrowsAsync<Exception>(async () => await registerAdminHandler.Handle(GetRegisterAdminRequest(), CancellationToken.None));
-        Assert.Equal("DB is not empty!", result.Message);
+        Assert.Equal("User with this email is already registered!", result.Message);
     }
 
     [Fact]
@@ -107,8 +85,8 @@ public class RegisterAdminHandlerTests
         Assert.NotNull(result);
     }
 
-    private RegisterAdminRequest GetRegisterAdminRequest()
-        => new RegisterAdminRequest()
+    private RegisterManagerRequest GetRegisterAdminRequest()
+        => new RegisterManagerRequest()
         {
             Username = "testName",
             Email = "test@test",
