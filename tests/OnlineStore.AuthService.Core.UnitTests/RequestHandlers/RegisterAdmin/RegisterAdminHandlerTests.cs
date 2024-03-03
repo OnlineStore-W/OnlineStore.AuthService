@@ -36,19 +36,82 @@ public class RegisterAdminHandlerTests
 
         serviceProviderBuilder
             .UserManagerMock
-            .Setup(x => x.GetUsersInRoleAsync(UserRoles.Admin))
-            .ReturnsAsync(new List<AuthUser>());
+                .Setup(x => x.GetUsersInRoleAsync(UserRoles.Admin))
+                .ReturnsAsync(new List<AuthUser>());
 
-        var request = new RegisterAdminRequest()
+        var request = GetRegisterAdminRequest();
+
+        var result = await registerAdminHandler.Handle(request, CancellationToken.None);
+        Assert.NotNull(result);
+        Assert.IsType<RegisterAdminResponse>(result);
+    }
+
+    [Fact]
+    public async Task Handle_WhenUserExist_ShouldThrowException()
+    {
+        serviceProviderBuilder
+            .UserManagerMock
+                .Setup(x => x.FindByNameAsync(It.IsAny<string>()))
+                .ReturnsAsync(new AuthUser());
+
+        var result = await Assert.ThrowsAsync<Exception>(async () => await registerAdminHandler.Handle(GetRegisterAdminRequest(), CancellationToken.None));
+        Assert.Equal("User already exists!", result.Message);
+    }
+
+    [Fact]
+    public async Task Handle_WhenAdminExist_ShouldThrowException()
+    {
+        serviceProviderBuilder
+            .UserManagerMock
+                .Setup(x => x.GetUsersInRoleAsync(UserRoles.Admin))
+                .ReturnsAsync(new List<AuthUser>() { new AuthUser() });
+
+        var result = await Assert.ThrowsAsync<Exception>(async () => await registerAdminHandler.Handle(GetRegisterAdminRequest(), CancellationToken.None));
+        Assert.Equal("Admin is already registered!", result.Message);
+    }
+
+    [Fact]
+    public async Task Handle_WhenDbNotEmpty_ShouldThrowException()
+    {
+        serviceProviderBuilder
+            .UserManagerMock
+                .Setup(x => x.Users)
+                .Returns(new List<AuthUser>() { new AuthUser() }.AsQueryable);
+
+        serviceProviderBuilder
+            .UserManagerMock
+                .Setup(x => x.GetUsersInRoleAsync(UserRoles.Admin))
+                .ReturnsAsync(new List<AuthUser>() { });
+
+        var result = await Assert.ThrowsAsync<Exception>(async () => await registerAdminHandler.Handle(GetRegisterAdminRequest(), CancellationToken.None));
+        Assert.Equal("DB is not empty!", result.Message);
+    }
+
+    [Fact]
+    public async Task Handle_WhenUserNotCreated_ShouldThrowException()
+    {
+        serviceProviderBuilder
+            .UserManagerMock
+                .Setup(x => x.CreateAsync(It.IsAny<AuthUser>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Failed());
+
+        serviceProviderBuilder
+            .UserManagerMock
+                .Setup(x => x.GetUsersInRoleAsync(UserRoles.Admin))
+                .ReturnsAsync(new List<AuthUser>());
+
+        var request = GetRegisterAdminRequest();
+
+        var result = await Assert.ThrowsAsync<Exception>(async () => await registerAdminHandler.Handle(GetRegisterAdminRequest(), CancellationToken.None));
+        Assert.NotNull(result);
+    }
+
+    private RegisterAdminRequest GetRegisterAdminRequest()
+        => new RegisterAdminRequest()
         {
             Username = "testName",
             Email = "test@test",
             Password = "testPsw",
             ConfirmedPassword = "testPsw"
         };
-
-        var result = await registerAdminHandler.Handle(request, CancellationToken.None);
-        Assert.NotNull(result);
-        Assert.IsType<RegisterAdminResponse>(result);
-    }
 }
