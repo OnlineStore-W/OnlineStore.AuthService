@@ -15,7 +15,6 @@ public class ConfirmEmailHandlerTests
 {
     private ServiceProviderBuilder serviceProviderBuilder;
     private ConfirmEmailHandler confirmEmailHandler;
-    private Mock<ProduserService> produserServiceMock;
     private Mock<IProduserServiceWrapper> produserServiceWrapperMock;
 
     public ConfirmEmailHandlerTests()
@@ -36,7 +35,6 @@ public class ConfirmEmailHandlerTests
 
         var produser = new ProduserService(kafkaConfigMock.Object);
 
-        produserServiceMock = new Mock<ProduserService>(kafkaConfigMock.Object);
         produserServiceWrapperMock = new Mock<IProduserServiceWrapper>();
         produserServiceWrapperMock
             .Setup(x => x.ProduceAsync(It.IsAny<EmailConfermedEvent>()))
@@ -108,12 +106,12 @@ public class ConfirmEmailHandlerTests
         };
 
     private AuthUser GetAuthUser()
-    => new AuthUser()
-    {
-        Id = Guid.NewGuid().ToString(),
-        UserName = "testName",
-        EmailConfirmed = true,
-        AccessFailedCount = 0,
-        PasswordExpiration = DateTime.UtcNow.AddYears(10)
-    };
+        => new AuthUser()
+        {
+            Id = Guid.NewGuid().ToString(),
+            UserName = "testName",
+            EmailConfirmed = true,
+            AccessFailedCount = 0,
+            PasswordExpiration = DateTime.UtcNow.AddYears(10)
+        };
 }
