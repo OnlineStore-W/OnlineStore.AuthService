@@ -10,9 +10,7 @@ public class ChangePasswordHandler : IRequestHandler<ChangePasswordRequest, Chan
     private readonly UserManager<AuthUser> _userManager;
     private readonly IServiceProvider serviceProvider;
 
-    public ChangePasswordHandler(
-        IServiceProvider serviceProvider
-        )
+    public ChangePasswordHandler(IServiceProvider serviceProvider)
     {
         this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
